@@ -24,3 +24,7 @@ All data is synthetic. No real patient, payer, or employer data is used.
 ## How it was built
 
 Built with AI assistance. Claude (Anthropic) is used as a coding assistant, working in small steps where I make the design decisions. Commits that Claude helped write include a `Co-Authored-By` line. No frameworks such as LangChain or LlamaIndex are used unless this README says otherwise.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
