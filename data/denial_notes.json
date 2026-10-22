@@ -1,0 +1,128 @@
+[
+  {
+    "id": "note-01",
+    "payer": "Copperleaf Health Plan",
+    "style": "terse",
+    "text": "Copperleaf HP denial 10/06 on claim CL-20931, CARC 16. Rendering provider NPI missing. Fix and rebill.",
+    "expected_category": "billing_or_coding_error",
+    "expected_policy_id": "pol-01",
+    "label_reason": "Missing claim data (rendering provider NPI). The fix is to correct the claim and resubmit."
+  },
+  {
+    "id": "note-02",
+    "payer": "Quillfield Health",
+    "style": "letter",
+    "text": "Quillfield Health has reviewed claim Q-55102 for date of service 09/03/2026. The office visit billed on the same day as the joint injection was not paid separately because it was not reported with a modifier showing a significant, separately identifiable service. If the visit meets that standard, please submit a corrected claim.",
+    "expected_category": "billing_or_coding_error",
+    "expected_policy_id": "pol-08",
+    "label_reason": "Missing modifier on a same-day visit. A coding problem fixed with a corrected claim."
+  },
+  {
+    "id": "note-03",
+    "payer": "Copperleaf Health Plan",
+    "style": "call",
+    "text": "Called Copperleaf 10/08 about claim CL-21477 (knee arthroscopy, DOS 09/22). Rep says there is no prior authorization on file. Surgery scheduler thinks one was requested but it was never confirmed. Call ref 7730192.",
+    "expected_category": "authorization_issue",
+    "expected_policy_id": "pol-02",
+    "label_reason": "No authorization on file for the surgery."
+  },
+  {
+    "id": "note-04",
+    "payer": "Quillfield Health",
+    "style": "terse",
+    "text": "Quillfield denial on Q-55348, CARC 198. Auth approved 12 PT visits, we billed 16. Visits 13 through 16 denied.",
+    "expected_category": "authorization_issue",
+    "expected_policy_id": "pol-09",
+    "label_reason": "Authorization exceeded: more visits billed than approved."
+  },
+  {
+    "id": "note-05",
+    "payer": "Copperleaf Health Plan",
+    "style": "letter",
+    "text": "Copperleaf Health Plan reviewed claim CL-21860 for date of service 09/14/2026. The lumbar spine MRI does not meet our medical necessity criteria because the records do not show six weeks of conservative treatment before the imaging was ordered.",
+    "expected_category": "medical_necessity",
+    "expected_policy_id": "pol-03",
+    "label_reason": "The payer says clinical criteria were not met."
+  },
+  {
+    "id": "note-06",
+    "payer": "Bramblecrest Insurance",
+    "style": "call",
+    "text": "Spoke with Bramblecrest 10/12 about BR-88213 (sleep study, DOS 08/29). Auth was on file, but their clinical reviewer says the documentation does not support an in-lab study instead of a home test. Rep suggested a peer-to-peer or a written appeal.",
+    "expected_category": "medical_necessity",
+    "expected_policy_id": "pol-06",
+    "label_reason": "Hard case: an authorization existed, but the denial reason is clinical criteria, so medical_necessity rather than authorization_issue."
+  },
+  {
+    "id": "note-07",
+    "payer": "Quillfield Health",
+    "style": "terse",
+    "text": "Quillfield Q-56010 denied CARC 27. Coverage termed 08/31, DOS 09/10. Check for new coverage?",
+    "expected_category": "eligibility_or_coverage",
+    "expected_policy_id": "pol-07",
+    "label_reason": "Coverage ended before the date of service."
+  },
+  {
+    "id": "note-08",
+    "payer": "Quillfield Health",
+    "style": "letter",
+    "text": "Quillfield Health records show other insurance that is primary for this date of service. Claim Q-56244 has been denied. Please bill the primary payer first, then send the claim to Quillfield with the primary payer's explanation of benefits.",
+    "expected_category": "eligibility_or_coverage",
+    "expected_policy_id": "pol-07",
+    "label_reason": "The wrong payer was billed first (coordination of benefits)."
+  },
+  {
+    "id": "note-09",
+    "payer": "Bramblecrest Insurance",
+    "style": "letter",
+    "text": "Claim BR-87904 for date of service 03/02/2026 was received by Bramblecrest Insurance on 08/20/2026. The claim is denied under reason code 29 because it was received after the filing limit.",
+    "expected_category": "timely_filing",
+    "expected_policy_id": "pol-04",
+    "label_reason": "Received after the 120-day filing limit (reason code 29)."
+  },
+  {
+    "id": "note-10",
+    "payer": "Bramblecrest Insurance",
+    "style": "call",
+    "text": "Bramblecrest call 10/14 about BR-88350 (DOS 02/20) denied as late. Our clearinghouse report shows we sent it 05/11, inside the window, but Bramblecrest says they first received it 07/30. Need the acceptance report for an appeal.",
+    "expected_category": "timely_filing",
+    "expected_policy_id": "pol-04",
+    "label_reason": "The payer says the claim was late, and the provider has proof of timely submission."
+  },
+  {
+    "id": "note-11",
+    "payer": "Bramblecrest Insurance",
+    "style": "terse",
+    "text": "Bramblecrest BR-88402 denied CARC 18. Original claim BR-88117 shows paid 09/25 for the same DOS and service. Looks like a true dup, no action?",
+    "expected_category": "duplicate_claim",
+    "expected_policy_id": "pol-05",
+    "label_reason": "A true duplicate of a claim already paid."
+  },
+  {
+    "id": "note-12",
+    "payer": "Bramblecrest Insurance",
+    "style": "letter",
+    "text": "Bramblecrest Insurance has denied claim BR-88577 as a duplicate of a previously submitted claim. Our records show an earlier claim for the same date of service and provider.",
+    "expected_category": "duplicate_claim",
+    "expected_policy_id": "pol-05",
+    "label_reason": "Duplicate denial. The next step is to check whether the earlier claim was actually paid."
+  },
+  {
+    "id": "note-13",
+    "payer": "Copperleaf Health Plan",
+    "style": "terse",
+    "text": "Copperleaf denied CL-22015. Remit only says 'see payer correspondence' and no letter has arrived yet.",
+    "expected_category": "other_or_unclear",
+    "expected_policy_id": null,
+    "label_reason": "No denial reason is available yet."
+  },
+  {
+    "id": "note-14",
+    "payer": "Quillfield Health",
+    "style": "call",
+    "text": "Called Quillfield 10/15 about Q-56499 (DOS 09/18). Rep says the rendering provider was not credentialed with Quillfield on that date, so the claim was denied.",
+    "expected_category": "other_or_unclear",
+    "expected_policy_id": null,
+    "label_reason": "The reason is clear, but provider credentialing is not one of the six categories."
+  }
+]

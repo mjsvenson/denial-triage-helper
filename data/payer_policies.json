@@ -1,0 +1,56 @@
+[
+  {
+    "id": "pol-01",
+    "payer": "Copperleaf Health Plan",
+    "topic": "corrected_claims",
+    "text": "Copperleaf Health Plan corrected claims: To fix missing or incorrect information on a processed claim, submit a replacement claim (claim frequency code 7) that references the original claim number. Do not send a new original claim, because it will deny as a duplicate. Corrected claims must be received within 90 days of the original determination."
+  },
+  {
+    "id": "pol-02",
+    "payer": "Copperleaf Health Plan",
+    "topic": "prior_authorization",
+    "text": "Copperleaf Health Plan prior authorization: Elective surgeries, advanced imaging, and sleep studies require prior authorization before the date of service. If a service was performed without authorization because of an urgent clinical need, a retroactive authorization request may be submitted within 14 days of the date of service. Claims denied for missing authorization can be reconsidered once an authorization is approved."
+  },
+  {
+    "id": "pol-03",
+    "payer": "Copperleaf Health Plan",
+    "topic": "medical_necessity",
+    "text": "Copperleaf Health Plan medical necessity appeals: Appeals of medical necessity denials must include the relevant clinical notes, the ordering provider's rationale, and documentation of prior treatments tried. Imaging criteria require at least six weeks of documented conservative treatment before a lumbar spine MRI unless red-flag symptoms are present. Appeals are reviewed by a clinician of the same or similar specialty."
+  },
+  {
+    "id": "pol-04",
+    "payer": "Bramblecrest Insurance",
+    "topic": "timely_filing",
+    "text": "Bramblecrest Insurance timely filing: Claims must be received within 120 days of the date of service. A late claim may be reconsidered only with proof of timely original submission, such as a clearinghouse acceptance report showing the claim was accepted within the filing limit. Screenshots from an internal billing system are not accepted as proof."
+  },
+  {
+    "id": "pol-05",
+    "payer": "Bramblecrest Insurance",
+    "topic": "duplicate_claims",
+    "text": "Bramblecrest Insurance duplicate claims: Before resubmitting, check claim status on the provider portal, because claims still in process are denied as duplicates if sent again. If a claim was denied as a duplicate but the original was never paid, submit a reconsideration request with the original claim number and proof of the first submission. Do not resubmit it as a new claim."
+  },
+  {
+    "id": "pol-06",
+    "payer": "Bramblecrest Insurance",
+    "topic": "medical_necessity",
+    "text": "Bramblecrest Insurance medical necessity review: An approved authorization does not guarantee payment, because services are still reviewed against clinical criteria when the claim is processed. Providers may request a peer-to-peer discussion with the medical reviewer within 14 days of the denial, or submit a written appeal with supporting clinical documentation. For in-lab sleep studies, documentation must explain why a home sleep test is not appropriate."
+  },
+  {
+    "id": "pol-07",
+    "payer": "Quillfield Health",
+    "topic": "eligibility_and_cob",
+    "text": "Quillfield Health eligibility and coordination of benefits: Verify eligibility for the date of service on the Quillfield provider portal. Coverage ends on the last day of the month in which a plan terminates. When another plan is primary, bill the primary payer first and send Quillfield the claim with the primary payer's explanation of benefits attached. Services after coverage ends should be billed to the current insurer or to the patient."
+  },
+  {
+    "id": "pol-08",
+    "payer": "Quillfield Health",
+    "topic": "corrected_claims",
+    "text": "Quillfield Health corrected claims and modifiers: An office visit billed on the same day as a minor procedure is paid separately only when reported with modifier 25 and supported by documentation of a significant, separately identifiable service. To correct a modifier or code, submit a replacement claim (frequency code 7) within 60 days of the denial. Quillfield follows national correct coding edits for bundled services."
+  },
+  {
+    "id": "pol-09",
+    "payer": "Quillfield Health",
+    "topic": "prior_authorization",
+    "text": "Quillfield Health prior authorization: Authorizations for therapy services approve a set number of visits within a date range. Visits beyond the approved number are denied unless an extension is requested before the additional visits take place. Extension requests must include updated progress notes."
+  }
+]
