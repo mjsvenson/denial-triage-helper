@@ -17,7 +17,7 @@ Stack: Python, the Anthropic API, command line.
 
 - `classify.py` sends one denial note to Claude and gets back a validated category and a short explanation. The output is checked against a Pydantic model, so the category is always one of the seven in [docs/denial-categories.md](docs/denial-categories.md).
 - `eval_classify.py` runs the classifier on labeled notes and reports how many it gets right, along with token usage, estimated cost, and run time. `--model` picks which Claude model to test. It checks the notes file for missing fields and unknown labels before making any API calls.
-- Synthetic data in `data/`: 14 labeled denial notes and 9 invented payer policy snippets.
+- Synthetic data in `data/`: 14 labeled development notes (`denial_notes.json`), 9 held-out notes (`heldout_notes.json`), and 9 invented payer policy snippets (`payer_policies.json`).
 
 ## Evaluation results
 
@@ -27,7 +27,7 @@ Stack: Python, the Anthropic API, command line.
 | Held-out set (9 notes) | 9 of 9 | 9 of 9 | 9 of 9 |
 | Cost of the held-out run | $0.0013 | $0.0243 | $0.0483 |
 
-- The held-out notes were drafted and first labeled with a separate AI tool, then reviewed by me. They were scored only after the classifier prompt was frozen.
+- The held-out notes were drafted and first labeled with a separate AI tool, then reviewed by me. They were scored only after the classifier prompt was frozen. They are now public in `data/heldout_notes.json`, so any future prompt change needs a fresh held-out set to be scored fairly.
 - One held-out note was dropped before final scoring as ambiguous: its text described bundling while its label said duplicate.
 - The default model is `claude-haiku-5-5`. The rule was set before scoring: use Haiku if it ties the best held-out score. It did, at about 1/37 of the cost of Opus on this run.
 - Limits: both sets are small and cleanly worded, and the held-out set has no `other_or_unclear` notes. Treat these scores as a sanity check, not a measure of real-world accuracy.
@@ -60,10 +60,14 @@ Classify one note (on macOS or Linux, use `.venv/bin/python` in place of `.venv\
 .venv\Scripts\python.exe classify.py "No prior authorization on file for this procedure."
 ```
 
-Run the evaluation on the labeled notes:
+Run the evaluation on the development notes, then on the held-out notes:
 
 ```powershell
 .venv\Scripts\python.exe eval_classify.py
+```
+
+```powershell
+.venv\Scripts\python.exe eval_classify.py data/heldout_notes.json
 ```
 
 Both scripts take `--model` to choose the Claude model (default `claude-haiku-5-5`), for example `--model claude-opus-5-5`. `eval_classify.py` also accepts a path to a different notes file. Run either script with `--help` to see all options.
