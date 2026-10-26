@@ -1,6 +1,6 @@
 """Classify a denial note into one of the categories in docs/denial-categories.md."""
 
-import sys
+import argparse
 from typing import Literal
 
 import anthropic
@@ -44,10 +44,10 @@ Rules:
 - In the explanation, use one or two sentences to point to the words in the note that support the category."""
 
 
-def classify(client: anthropic.Anthropic, note_text: str):
+def classify(client: anthropic.Anthropic, note_text: str, model: str = MODEL):
     """Return (Classification, usage) for one note, or raise ValueError if no valid answer came back."""
     response = client.messages.parse(
-        model=MODEL,
+        model=model,
         max_tokens=4096,  # room for the model's thinking plus the short JSON answer
         system=SYSTEM_PROMPT,
         # The tags mark where the note starts and ends, so its text is read as data.
@@ -60,12 +60,15 @@ def classify(client: anthropic.Anthropic, note_text: str):
 
 
 def main():
-    if len(sys.argv) != 2:
-        raise SystemExit('Usage: python classify.py "denial note text"')
+    parser = argparse.ArgumentParser(description="Classify one denial note.")
+    parser.add_argument("text", help="the denial note text, in quotes")
+    parser.add_argument("--model", default=MODEL, help=f"Claude model ID (default: {MODEL})")
+    args = parser.parse_args()
+
     load_dotenv()
     client = anthropic.Anthropic()
     try:
-        result, usage = classify(client, sys.argv[1])
+        result, usage = classify(client, args.text, args.model)
     except anthropic.APIError as e:
         raise SystemExit(f"API error: {e}")
     print(result.model_dump_json(indent=2))

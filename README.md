@@ -16,7 +16,7 @@ Stack: Python, the Anthropic API, command line.
 ## What works so far
 
 - `classify.py` sends one denial note to Claude and gets back a validated category and a short explanation. The output is checked against a Pydantic model, so the category is always one of the seven in [docs/denial-categories.md](docs/denial-categories.md).
-- `eval_classify.py` runs the classifier on labeled notes and reports how many it gets right. Latest run: 14 of 14 on `data/denial_notes.json` with `claude-opus-5-5`. Those notes were written alongside the prompt, so treat that score as optimistic. A held-out test set written separately is still to come.
+- `eval_classify.py` runs the classifier on labeled notes and reports how many it gets right, along with token usage, estimated cost, and run time. `--model` picks which Claude model to test. Latest runs: 14 of 14 on `data/denial_notes.json` with each of `claude-haiku-5-5`, `claude-sonnet-5-5`, and `claude-opus-5-5`. Those notes were written alongside the prompt, so treat that score as optimistic. A held-out test set written separately is still to come.
 - Synthetic data in `data/`: 14 labeled denial notes and 9 invented payer policy snippets.
 
 ## Try it
