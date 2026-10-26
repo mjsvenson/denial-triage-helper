@@ -21,16 +21,39 @@ Stack: Python, the Anthropic API, command line.
 
 ## Try it
 
-Requires Python 3.11 or later and an Anthropic API key.
+You need Python (tested with 3.11) and an Anthropic API key. The commands below call the virtual environment's own Python by its path, so there is no need to activate the environment first.
 
-```
+Windows (PowerShell):
+
+```powershell
 python -m venv .venv
-.venv\Scripts\activate            (Windows; on macOS or Linux: source .venv/bin/activate)
-pip install -r requirements.txt
-cp .env.example .env              (then put your API key in .env)
-python classify.py "No prior authorization on file for this procedure."
-python eval_classify.py
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+Copy-Item .env.example .env
 ```
+
+macOS or Linux:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+cp .env.example .env
+```
+
+Then open `.env` and replace `your-key-here` with your API key. `.env` is git-ignored, so the key stays on your machine.
+
+Classify one note (on macOS or Linux, use `.venv/bin/python` in place of `.venv\Scripts\python.exe`):
+
+```powershell
+.venv\Scripts\python.exe classify.py "No prior authorization on file for this procedure."
+```
+
+Run the evaluation on the labeled notes:
+
+```powershell
+.venv\Scripts\python.exe eval_classify.py
+```
+
+Both scripts take `--model` to choose the Claude model (default `claude-opus-5-5`), for example `--model claude-haiku-5-5`. `eval_classify.py` also accepts a path to a different notes file. Run either script with `--help` to see all options.
 
 ## Data
 
