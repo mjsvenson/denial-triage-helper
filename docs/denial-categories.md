@@ -9,8 +9,8 @@ The classifier returns exactly one of these seven values for each denial note.
 1. **`billing_or_coding_error`**
    - Meaning: the claim has missing or wrong data, or a code or modifier problem.
    - Example wording: "Claim is missing the rendering provider NPI."
-   - Typical next step: correct the claim and resubmit.
-   - Related reason codes (CARC): 16 (missing information or a billing error), 4 (code and modifier do not match), 11 (diagnosis does not fit the procedure), and 97 (service bundled into another) when the bundling can be fixed.
+   - Typical next step: correct the claim and resubmit. For a bundling denial where the bundling is correct, accept the write-off.
+   - Related reason codes (CARC): 16 (missing information or a billing error), 4 (code and modifier do not match), 11 (diagnosis does not fit the procedure), and 97 (service bundled into another), whether or not the bundling can be fixed.
 
 2. **`authorization_issue`**
    - Meaning: required prior approval is absent or was exceeded.

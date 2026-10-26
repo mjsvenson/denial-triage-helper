@@ -7,7 +7,8 @@ import anthropic
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
-MODEL = "claude-opus-5-5"
+# Chosen by a rule set before held-out scoring: use Haiku if it ties the best score (see README).
+MODEL = "claude-haiku-5-5"
 
 # Keep in sync with docs/denial-categories.md.
 Category = Literal[
