@@ -7,11 +7,14 @@ import argparse
 import json
 import time
 from pathlib import Path
+from typing import get_args
 
 import anthropic
 from dotenv import load_dotenv
 
-from classify import MODEL, classify
+from classify import MODEL, Category, classify
+
+REQUIRED_FIELDS = ("id", "text", "expected_category")
 
 # Dollars per million tokens (input, output), from Anthropic's published pricing.
 PRICES = {
@@ -21,6 +24,30 @@ PRICES = {
 }
 
 
+def check_notes(notes):
+    """Return a list of problems with the notes file. An empty list means it is safe to run."""
+    if not isinstance(notes, list):
+        return ["the file must contain a JSON array of notes"]
+    allowed = get_args(Category)
+    problems = []
+    seen_ids = set()
+    for position, note in enumerate(notes, start=1):
+        if not isinstance(note, dict):
+            problems.append(f"item {position}: not a JSON object")
+            continue
+        name = str(note.get("id", f"item {position}"))
+        for field in REQUIRED_FIELDS:
+            if not note.get(field):
+                problems.append(f"{name}: missing or empty '{field}'")
+        if name in seen_ids:
+            problems.append(f"{name}: duplicate id")
+        seen_ids.add(name)
+        category = note.get("expected_category")
+        if category and category not in allowed:
+            problems.append(f"{name}: unknown expected_category '{category}'")
+    return problems
+
+
 def main():
     parser = argparse.ArgumentParser(description="Score the classifier on a labeled notes file.")
     parser.add_argument("notes", nargs="?", default="data/denial_notes.json", help="path to a notes JSON file")
@@ -28,7 +55,24 @@ def main():
     args = parser.parse_args()
 
     path = Path(args.notes)
-    notes = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        # utf-8-sig also accepts files saved with a byte order mark, which some Windows editors add.
+        raw = path.read_text(encoding="utf-8-sig")
+    except FileNotFoundError:
+        raise SystemExit(f"File not found: {path}")
+    try:
+        notes = json.loads(raw)
+    except json.JSONDecodeError as e:
+        # AI chat answers often wrap JSON in Markdown code fences.
+        hint = " (remove the ``` lines around the JSON)" if raw.lstrip().startswith("```") else ""
+        raise SystemExit(f"{path} is not valid JSON: {e}{hint}")
+
+    problems = check_notes(notes)
+    if problems:
+        print(f"{path} has {len(problems)} problem(s), so no API calls were made:")
+        for problem in problems:
+            print(f"  - {problem}")
+        raise SystemExit(1)
 
     load_dotenv()
     client = anthropic.Anthropic()
