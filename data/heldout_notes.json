@@ -5,7 +5,7 @@
     "style": "terse",
     "text": "CL-48371 rejected. DOS and units look fine, but the claim came back for missing rendering provider information. Checked the submission against the visit record and the rendering provider field was blank. Corrected claim needed before it can be processed. CARC 16: Claim/service lacks information or has submission/billing error(s) which is needed for adjudication.",
     "expected_category": "billing_or_coding_error",
-    "expected_policy_id": null,
+    "expected_policy_id": "pol-01",
     "label_reason": "The claim cannot be adjudicated because required rendering provider information is missing, making incomplete claim data the primary cause."
   },
   {
@@ -41,7 +41,7 @@
     "style": "letter",
     "text": "Claim BR-18463 cannot be considered for payment because it was received after the filing period permitted by your provider agreement. The date-of-service documentation and submitted billing details were reviewed, and no missing information was identified as the cause of this determination. Our records show that the claim was first received after the applicable filing deadline, and the materials submitted do not establish an exception to that deadline. If you believe the original claim was submitted on time, provide evidence of the initial transmission and its acceptance status. CARC 29: The time limit for filing has expired.",
     "expected_category": "timely_filing",
-    "expected_policy_id": null,
+    "expected_policy_id": "pol-04",
     "label_reason": "The payer states that the original claim was received after the applicable filing deadline and that no exception has been established."
   },
   {
@@ -59,7 +59,7 @@
     "style": "call",
     "text": "Spoke with Copperleaf about CL-23819 after the office saw an authorization-related message in the portal. Rep clarified that the authorization was approved and covered the date of service, but the claim was submitted with a modifier that does not match the service details on file. The claim line therefore failed the payer's coding edits. Rep advised correcting the modifier and resubmitting the claim. CARC 4: The procedure code is inconsistent with the modifier used or a required modifier is missing.",
     "expected_category": "billing_or_coding_error",
-    "expected_policy_id": null,
+    "expected_policy_id": "pol-01",
     "label_reason": "The authorization was confirmed as valid, and the stated cause of the denial is an incorrect or missing modifier."
   },
   {
@@ -77,7 +77,7 @@
     "style": "letter",
     "text": "Re: Claim Q-81476. We have completed our review of the submitted claim and determined that payment is not available under the applicable benefit provisions. The service was billed with a code combination that conflicts with the description of the service documented in the submitted records. This determination is based on the inconsistency between the reported service and the coding submitted, rather than on the clinical appropriateness of the service. Please review the applicable coding guidance, correct the claim if warranted, and submit the revised information for adjudication. CARC 11: The diagnosis is inconsistent with the procedure.",
     "expected_category": "billing_or_coding_error",
-    "expected_policy_id": null,
+    "expected_policy_id": "pol-08",
     "label_reason": "The payer identifies an inconsistency between the submitted diagnosis and procedure coding as the basis for denial, which is a coding error."
   }
 ]
