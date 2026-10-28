@@ -7,7 +7,7 @@ A small command-line learning project that triages invented insurance claim deni
 ## Planned
 
 1. Classify the denial reason into a category (structured JSON output) (working, see below)
-2. Retrieve the most relevant snippet from a small set of invented payer policy notes
+2. Retrieve the most relevant snippet from a small set of invented payer policy notes (first version, see below)
 3. Draft a suggested next step, using one tool call (for example, looking up an invented payer's appeal deadline)
 4. Evaluate against a handful of test cases and report how many it gets right (working, see below)
 
@@ -17,9 +17,13 @@ Stack: Python, the Anthropic API, command line.
 
 - `classify.py` sends one denial note to Claude and gets back a validated category and a short explanation. The output is checked against a Pydantic model, so the category is always one of the seven in [docs/denial-categories.md](docs/denial-categories.md).
 - `eval_classify.py` runs the classifier on labeled notes and reports how many it gets right, along with token usage, estimated cost, and run time. `--model` picks which Claude model to test. It checks the notes file for missing fields and unknown labels before making any API calls.
+- `retrieve.py` finds the payer policy snippet that best matches a note, using TF-IDF keyword search written by hand (no search library). When the note names its payer, it searches only that payer's snippets. It returns no policy if the best match scores below 0.16.
+- `eval_retrieve.py` scores retrieval against each note's `expected_policy_id`. It makes no API calls, so it is free and gives the same result every run.
 - Synthetic data in `data/`: 14 labeled development notes (`denial_notes.json`), 9 held-out notes (`heldout_notes.json`), and 9 invented payer policy snippets (`payer_policies.json`).
 
 ## Evaluation results
+
+### Classifier
 
 | | Haiku 5.5 | Sonnet 5.5 | Opus 5.5 |
 |---|---|---|---|
@@ -31,6 +35,21 @@ Stack: Python, the Anthropic API, command line.
 - One held-out note was dropped before final scoring as ambiguous: its text described bundling while its label said duplicate.
 - The default model is `claude-haiku-5-5`. The rule was set before scoring: use Haiku if it ties the best held-out score. It did, at about 1/37 of the cost of Opus on this run.
 - Limits: both sets are small and cleanly worded, and the held-out set has no `other_or_unclear` notes. Treat these scores as a sanity check, not a measure of real-world accuracy.
+
+### Retrieval (first version)
+
+| | Development (14 notes) | Held-out (9 notes) |
+|---|---|---|
+| Correct overall | 14 of 14 | 4 of 9 |
+| Found the right snippet | 12 of 12 | 3 of 4 |
+| Correctly returned no policy | 2 of 2 | 1 of 5 |
+
+- The held-out retrieval labels were committed before any retrieval code existed. The 0.16 cutoff was set from the development notes before the single held-out run, so the development score is optimistic.
+- Why the held-out run missed:
+  - Six of the nine held-out notes never name their payer, only a claim number, so the payer filter could not run. Three of those notes matched another payer's policy. (Every development note names its payer, so this never showed up there.)
+  - Keyword search cannot read negation or context. holdout-03 says the denial is "not due to eligibility" and matched the eligibility policy. holdout-07 mentions an approved authorization and matched the prior authorization policy instead of corrected claims. The classifier got both notes right.
+  - The development notes had no case where a payer simply has no policy on the topic, so the cutoff never learned that case.
+- Any fix chosen after seeing these misses has to be measured on fresh notes, not on this held-out set.
 
 ## Try it
 
@@ -70,7 +89,17 @@ Run the evaluation on the development notes, then on the held-out notes:
 .venv\Scripts\python.exe eval_classify.py data/heldout_notes.json
 ```
 
-Both scripts take `--model` to choose the Claude model (default `claude-haiku-5-5`), for example `--model claude-opus-5-5`. `eval_classify.py` also accepts a path to a different notes file. Run either script with `--help` to see all options.
+Find the best policy snippet for one note, then score retrieval (both are free, with no API calls):
+
+```powershell
+.venv\Scripts\python.exe retrieve.py "Bramblecrest says the claim arrived after the filing limit."
+```
+
+```powershell
+.venv\Scripts\python.exe eval_retrieve.py data/heldout_notes.json
+```
+
+`classify.py` and `eval_classify.py` take `--model` to choose the Claude model (default `claude-haiku-5-5`), for example `--model claude-opus-5-5`. Both eval scripts accept a path to a different notes file, and the retrieval scripts take `--min-score` to try a different cutoff. Run any script with `--help` to see all options.
 
 ## Data
 
