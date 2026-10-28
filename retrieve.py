@@ -1,4 +1,4 @@
-"""Find the payer policy snippet that best matches a denial note, using TF-IDF keyword search."""
+"""Find the payer policy snippets that best match a denial note, using TF-IDF keyword search."""
 
 import argparse
 import json
@@ -10,9 +10,9 @@ from pathlib import Path
 POLICIES_PATH = Path(__file__).parent / "data" / "payer_policies.json"
 PAYERS = ["Copperleaf Health Plan", "Bramblecrest Insurance", "Quillfield Health"]
 
-# Below this similarity, no policy is returned. Set before the held-out run, halfway between the
-# lowest correct-match score (0.241) and the highest no-policy score (0.086) on the development notes.
-MIN_SCORE = 0.16
+# How many candidate snippets to pass on. The next step decides which one, if any, applies,
+# because keyword search cannot read negation or context (see README, retrieval first version).
+TOP_K = 2
 
 # Common words that carry no meaning for matching.
 STOPWORDS = {
@@ -71,30 +71,30 @@ def load_index(path=POLICIES_PATH):
     return PolicyIndex(json.loads(Path(path).read_text(encoding="utf-8")))
 
 
-def retrieve(index, note_text, min_score=MIN_SCORE):
-    """Return (best policy or None, full ranking). None means no candidate reached min_score."""
-    ranked = index.rank(note_text, find_payer(note_text))
-    if ranked and ranked[0][0] >= min_score:
-        return ranked[0][1], ranked
-    return None, ranked
+def retrieve(index, note_text, payer, k=TOP_K):
+    """Return up to k (score, policy) candidates from the payer's snippets, best first.
+
+    The payer comes from the claim record rather than the note text, because many notes only give
+    a claim number. Snippets that share no weighted words with the note are left out.
+    """
+    ranked = index.rank(note_text, payer)
+    return [(score, policy) for score, policy in ranked if score > 0][:k]
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Find the policy snippet that best matches one denial note.")
+    parser = argparse.ArgumentParser(description="Find the policy snippets that best match one denial note.")
     parser.add_argument("text", help="the denial note text, in quotes")
-    parser.add_argument("--min-score", type=float, default=MIN_SCORE, help=f"minimum similarity (default: {MIN_SCORE})")
+    parser.add_argument("--payer", choices=PAYERS, help="payer from the claim record (default: look for a payer name in the text)")
+    parser.add_argument("--k", type=int, default=TOP_K, help=f"how many candidates to return (default: {TOP_K})")
     args = parser.parse_args()
 
-    index = load_index()
-    payer = find_payer(args.text)
-    policy, ranked = retrieve(index, args.text, args.min_score)
-    print(f"payer filter: {payer or 'none (searched all payers)'}")
-    for score, candidate in ranked[:3]:
-        print(f"  {score:.3f}  {candidate['id']}  {candidate['payer']}, {candidate['topic']}")
-    if policy:
-        print(f"\nmatched {policy['id']}: {policy['text']}")
-    else:
-        print(f"\nno policy matched (best score below {args.min_score})")
+    payer = args.payer or find_payer(args.text)
+    candidates = retrieve(load_index(), args.text, payer, args.k)
+    print(f"payer: {payer or 'unknown, so all payers were searched'}")
+    if not candidates:
+        print("no candidates: no snippet shares any weighted words with the note")
+    for score, policy in candidates:
+        print(f"\n{score:.3f}  {policy['id']}  {policy['topic']}\n  {policy['text']}")
 
 
 if __name__ == "__main__":

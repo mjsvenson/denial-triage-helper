@@ -1,20 +1,22 @@
-"""Score retrieval against each note's expected_policy_id.
+"""Score retrieval: is each note's expected policy among the top candidates (recall at k)?
 
+Notes whose expected_policy_id is null have no right snippet. Deciding that no candidate applies
+is the drafting step's job, so those notes are listed here but scored there.
 This makes no API calls, so it is free and gives the same result every run.
-Usage: python eval_retrieve.py [notes JSON path] [--min-score N]
+Usage: python eval_retrieve.py [notes JSON path] [--k N]
 """
 
 import argparse
 import json
 from pathlib import Path
 
-from retrieve import MIN_SCORE, load_index, retrieve
+from retrieve import PAYERS, TOP_K, load_index, retrieve
 
 
 def main():
     parser = argparse.ArgumentParser(description="Score policy retrieval on a labeled notes file.")
     parser.add_argument("notes", nargs="?", default="data/denial_notes.json", help="path to a notes JSON file")
-    parser.add_argument("--min-score", type=float, default=MIN_SCORE, help=f"minimum similarity (default: {MIN_SCORE})")
+    parser.add_argument("--k", type=int, default=TOP_K, help=f"how many candidates count (default: {TOP_K})")
     args = parser.parse_args()
 
     path = Path(args.notes)
@@ -22,35 +24,36 @@ def main():
     index = load_index()
 
     valid_answers = {p["id"] for p in index.policies} | {None}
-    problems = [f"{n.get('id')}: missing expected_policy_id" for n in notes if "expected_policy_id" not in n]
-    problems += [
-        f"{n['id']}: unknown expected_policy_id '{n['expected_policy_id']}'"
-        for n in notes if "expected_policy_id" in n and n["expected_policy_id"] not in valid_answers
-    ]
+    problems = []
+    for n in notes:
+        if n.get("payer") not in PAYERS:
+            problems.append(f"{n.get('id')}: payer must be one of {PAYERS}")
+        if "expected_policy_id" not in n:
+            problems.append(f"{n.get('id')}: missing expected_policy_id")
+        elif n["expected_policy_id"] not in valid_answers:
+            problems.append(f"{n.get('id')}: unknown expected_policy_id '{n['expected_policy_id']}'")
     if problems:
         print(f"{path} has {len(problems)} problem(s):")
         for problem in problems:
             print(f"  - {problem}")
         raise SystemExit(1)
 
-    found = should_find = empty_ok = should_be_empty = 0
+    hits = with_answer = no_answer = 0
     for note in notes:
-        policy, ranked = retrieve(index, note["text"], args.min_score)
-        got = policy["id"] if policy else None
+        candidates = retrieve(index, note["text"], note["payer"], args.k)
+        shown = ", ".join(f"{p['id']} {score:.3f}" for score, p in candidates) or "none"
         expected = note["expected_policy_id"]
-        ok = got == expected
-        best = f"{ranked[0][1]['id']} at {ranked[0][0]:.3f}" if ranked else "no candidates"
-        print(f"{'OK  ' if ok else 'MISS'} {note['id']}: expected {expected}, got {got}   (top candidate: {best})")
         if expected is None:
-            should_be_empty += 1
-            empty_ok += ok
-        else:
-            should_find += 1
-            found += ok
+            no_answer += 1
+            print(f"--   {note['id']}: no right snippet; candidates passed on: {shown}")
+            continue
+        with_answer += 1
+        ok = expected in [p["id"] for _, p in candidates]
+        hits += ok
+        print(f"{'OK  ' if ok else 'MISS'} {note['id']}: expected {expected} in top {args.k}; got {shown}")
 
-    print(f"\n{found + empty_ok} of {len(notes)} correct ({path}, min score {args.min_score})")
-    print(f"  found the right snippet: {found} of {should_find}")
-    print(f"  correctly returned no policy: {empty_ok} of {should_be_empty}")
+    print(f"\nright snippet in the top {args.k}: {hits} of {with_answer} ({path})")
+    print(f"notes with no right snippet: {no_answer} (scored in the drafting step, which decides if a candidate applies)")
 
 
 if __name__ == "__main__":
