@@ -8,7 +8,7 @@ A small command-line learning project that triages invented insurance claim deni
 
 1. Classify the denial reason into a category (structured JSON output) (working, see below)
 2. Retrieve the most relevant snippet from a small set of invented payer policy notes (second version, see below)
-3. Draft a suggested next step, using one tool call (for example, looking up an invented payer's appeal deadline)
+3. Draft a suggested next step, using one tool call (for example, looking up an invented payer's appeal deadline) (working, see below)
 4. Evaluate against a handful of test cases and report how many it gets right (working, see below)
 
 Stack: Python, the Anthropic API, command line.
@@ -19,7 +19,10 @@ Stack: Python, the Anthropic API, command line.
 - `eval_classify.py` runs the classifier on labeled notes and reports how many it gets right, along with token usage, estimated cost, and run time. `--model` picks which Claude model to test. It checks the notes file for missing fields and unknown labels before making any API calls.
 - `retrieve.py` ranks the payer policy snippets against a note using TF-IDF keyword search written by hand (no search library). It searches only the claim's payer, which comes from the claim record rather than the note text, and returns the top 2 candidates. Deciding which candidate applies, if any, is left to the next step.
 - `eval_retrieve.py` checks whether each note's `expected_policy_id` is among the candidates (recall at 2). It makes no API calls, so it is free and gives the same result every run.
-- Synthetic data in `data/`: 14 labeled development notes (`denial_notes.json`), 9 held-out notes (`heldout_notes.json`), and 9 invented payer policy snippets (`payer_policies.json`).
+- `draft.py` drafts the next step. It gives Claude the note, the classifier's category, and the retrieval candidates, and offers one tool, `get_appeal_deadline`, which our own code answers from `data/appeal_deadlines.json`. Claude must say which candidate it cites, or that none applies, and may state payer rules only from the cited snippet or the tool result. The tool loop is written by hand, so each step of tool use is visible in the code.
+- `triage.py` runs the whole pipeline on one note and prints the category, the candidates, the cited policy, any tool call, and the next step.
+- `eval_draft.py` runs the pipeline on labeled notes, scores the citations and deadlines automatically, and prints each draft for a person to check.
+- Synthetic data in `data/`: 14 labeled development notes (`denial_notes.json`), 9 held-out notes (`heldout_notes.json`), 9 invented payer policy snippets (`payer_policies.json`), and invented appeal deadlines for each payer (`appeal_deadlines.json`).
 
 ## Evaluation results
 
@@ -65,6 +68,19 @@ Changes made in response to the first version's misses:
 
 - The held-out result is not a clean measure, because these changes were chosen after seeing the held-out misses. Fresh notes are needed for that.
 - Each payer has only 3 snippets, so finding the right one in the top 2 is easy. The harder test is whether the drafting step picks the right candidate, or correctly rejects both.
+
+### Drafting (development runs, before the prompt freeze)
+
+| | Development (14 notes) | Earlier held-out, now development (9 notes) |
+|---|---|---|
+| Citation correct overall | 13 of 14 | 9 of 9 |
+| Cited the right snippet | 11 of 12 | 4 of 4 |
+| Correctly cited no policy | 2 of 2 | 5 of 5 |
+| Deadline matched the data file, when the tool was called | 7 of 7 | 3 of 3 |
+
+- On holdout-07, keyword search ranked the prior authorization snippet first, but the drafting step cited the corrected-claims snippet because the note says the authorization was approved. That is the case the first version of retrieval missed.
+- The one miss, note-11, is a true duplicate of a claim already paid. The draft correctly says to take no action but cites no policy, while the label expects the duplicate-claims policy.
+- Both sets were used during development, so these numbers are optimistic. A clean measure will come from 8 fresh notes, scored once after the drafting prompt is frozen.
 
 ## Try it
 
@@ -114,7 +130,17 @@ Find the candidate policy snippets for one note, then score retrieval (both are 
 .venv\Scripts\python.exe eval_retrieve.py data/heldout_notes.json
 ```
 
-`classify.py` and `eval_classify.py` take `--model` to choose the Claude model (default `claude-haiku-5-5`), for example `--model claude-opus-5-5`. Both eval scripts accept a path to a different notes file, and the retrieval scripts take `--k` to change how many candidates are returned. Run any script with `--help` to see all options.
+Triage one note end to end (two or three API calls), then score the drafting step on the labeled notes:
+
+```powershell
+.venv\Scripts\python.exe triage.py "Claim received after the filing limit. CARC 29." --payer "Bramblecrest Insurance"
+```
+
+```powershell
+.venv\Scripts\python.exe eval_draft.py
+```
+
+The scripts that call Claude (`classify.py`, `triage.py`, `eval_classify.py`, and `eval_draft.py`) take `--model` to choose the model (default `claude-haiku-5-5`), for example `--model claude-opus-5-5`. The eval scripts accept a path to a different notes file, and the retrieval scripts take `--k` to change how many candidates are returned. Run any script with `--help` to see all options.
 
 ## Data
 

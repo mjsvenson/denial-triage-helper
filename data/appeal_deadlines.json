@@ -1,0 +1,5 @@
+{
+  "Copperleaf Health Plan": {"deadline_days": 60, "counted_from": "denial date", "submit_via": "provider portal"},
+  "Bramblecrest Insurance": {"deadline_days": 90, "counted_from": "denial date", "submit_via": "mail or fax"},
+  "Quillfield Health": {"deadline_days": 45, "counted_from": "denial date", "submit_via": "provider portal"}
+}
