@@ -53,7 +53,7 @@ def main():
     client = anthropic.Anthropic()
 
     counts = dict.fromkeys(
-        ["cited_right", "has_right", "cited_none_ok", "has_none", "invalid", "category_ok", "tool_notes", "deadline_ok"], 0
+        ["cited_right", "has_right", "cited_none_ok", "has_none", "invalid", "category_ok", "tool_notes", "deadline_ok", "appeal_flag"], 0
     )
     tokens_in = tokens_out = 0
     start = time.perf_counter()
@@ -83,6 +83,10 @@ def main():
         counts["category_ok"] += classification.category == note["expected_category"]
 
         deadline_note = "no tool call"
+        # A keyword flag, not a score: it also fires on "do not appeal", so check flagged drafts by hand.
+        if not tool_calls and any(word in result.next_step.lower() for word in ("appeal", "reconsider")):
+            counts["appeal_flag"] += 1
+            deadline_note = "no tool call, but the step mentions an appeal or reconsideration (check by hand)"
         if tool_calls:
             counts["tool_notes"] += 1
             right_days = deadlines[note["payer"]]["deadline_days"]
@@ -103,6 +107,7 @@ def main():
     print(f"  correctly cited none: {counts['cited_none_ok']} of {counts['has_none']}")
     print(f"  citations outside the candidates: {counts['invalid']}")
     print(f"  tool called on {counts['tool_notes']} notes; deadline matched the file on {counts['deadline_ok']}")
+    print(f"  steps that mention an appeal without a deadline lookup (check by hand): {counts['appeal_flag']}")
     print(f"  classifier category correct: {counts['category_ok']} of {len(notes)}")
     print(f"tokens in: {tokens_in}, out: {tokens_out}, estimated cost: ${cost:.4f}, time: {elapsed:.0f}s")
     print("\nFor your review of each next step above:")

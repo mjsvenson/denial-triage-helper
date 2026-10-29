@@ -21,7 +21,7 @@ Stack: Python, the Anthropic API, command line.
 - `eval_retrieve.py` checks whether each note's `expected_policy_id` is among the candidates (recall at 2). It makes no API calls, so it is free and gives the same result every run.
 - `draft.py` drafts the next step. It gives Claude the note, the classifier's category, and the retrieval candidates, and offers one tool, `get_appeal_deadline`, which our own code answers from `data/appeal_deadlines.json`. Claude must say which candidate it cites, or that none applies, and may state payer rules only from the cited snippet or the tool result. The tool loop is written by hand, so each step of tool use is visible in the code.
 - `triage.py` runs the whole pipeline on one note and prints the category, the candidates, the cited policy, any tool call, and the next step.
-- `eval_draft.py` runs the pipeline on labeled notes, scores the citations and deadlines automatically, and prints each draft for a person to check.
+- `eval_draft.py` runs the pipeline on labeled notes, scores the citations and deadlines automatically, flags steps that mention an appeal without a deadline lookup, and prints each draft for a person to check.
 - Synthetic data in `data/`: 14 labeled development notes (`denial_notes.json`), 9 held-out notes (`heldout_notes.json`), 9 invented payer policy snippets (`payer_policies.json`), and invented appeal deadlines for each payer (`appeal_deadlines.json`).
 
 ## Evaluation results
@@ -73,14 +73,15 @@ Changes made in response to the first version's misses:
 
 | | Development (14 notes) | Earlier held-out, now development (9 notes) |
 |---|---|---|
-| Citation correct overall | 13 of 14 | 9 of 9 |
-| Cited the right snippet | 11 of 12 | 4 of 4 |
+| Citation correct overall | 14 of 14 | 9 of 9 |
+| Cited the right snippet | 12 of 12 | 4 of 4 |
 | Correctly cited no policy | 2 of 2 | 5 of 5 |
-| Deadline matched the data file, when the tool was called | 7 of 7 | 3 of 3 |
+| Deadline matched the data file, when the tool was called | 6 of 6 | 3 of 3 |
 
 - On holdout-07, keyword search ranked the prior authorization snippet first, but the drafting step cited the corrected-claims snippet because the note says the authorization was approved. That is the case the first version of retrieval missed.
-- The one miss, note-11, is a true duplicate of a claim already paid. The draft correctly says to take no action but cites no policy, while the label expects the duplicate-claims policy.
-- Both sets were used during development, so these numbers are optimistic. A clean measure will come from 8 fresh notes, scored once after the drafting prompt is frozen.
+- The first run missed note-11, a true duplicate of a claim already paid: the draft said to take no action but cited no policy. Two prompt clarifications, made on this development data, fixed it. A policy that covers this type of denial now counts as applying even when the step is to take no action, and any mention of an appeal or reconsideration requires a deadline lookup.
+- The appeal-without-lookup flag is keyword based, so it also fires on phrases like "rather than appealing". The one flag in this run was that kind of false positive, which is why flagged drafts are checked by hand.
+- Both sets were used during development, so these numbers are optimistic. The drafting prompt is now frozen, and 8 fresh notes will be scored once against it.
 
 ## Try it
 
