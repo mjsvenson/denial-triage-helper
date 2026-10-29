@@ -99,6 +99,7 @@ The classifier prompt, retrieval, and the drafting prompt were all frozen before
 - The rejections were not trivial. Most notes contain a misleading keyword, and on fresh-06 a Quillfield duplicate came with Quillfield's corrected-claims policy as a candidate while the note itself mentions the corrected-claim process. All three models still cited no policy, and none borrowed another payer's rules.
 - By the rule set before the run (use the cheapest model that ties the best citation score), `claude-haiku-5-5` stays the default.
 - Reading the drafts turned up differences the automatic scores miss. On fresh-08, where the denial reason is still unknown, Sonnet and Opus said to watch the 45-day appeal window while waiting for the payer's written determination, and Haiku did not. Haiku's fresh-06 draft also ends with a muddled sentence.
+- Every draft from this run, for all three models, is in [results/fresh-notes-run.md](results/fresh-notes-run.md).
 
 ## Try it
 
