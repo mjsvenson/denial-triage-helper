@@ -1,0 +1,74 @@
+[
+  {
+    "id": "fresh-01",
+    "payer": "Copperleaf Health Plan",
+    "style": "terse",
+    "text": "CL-73184 denied. Eligibility was checked and the policy was active on the service date. Actual issue is late submission: first receipt was recorded after the filing limit, and no proof of an earlier accepted submission was found. CARC 29: The time limit for filing has expired.",
+    "expected_category": "timely_filing",
+    "expected_policy_id": null,
+    "label_reason": "The policy was active on the service date, but the claim was received after the filing deadline without evidence of timely submission."
+  },
+  {
+    "id": "fresh-02",
+    "payer": "Bramblecrest Insurance",
+    "style": "call",
+    "text": "BR-62057. Called provider services because the portal banner says authorization review. Rep confirmed approval was on file for the date and service billed, so authorization is not the problem. The claim line has a missing required modifier, and the submitted service details do not support processing it as billed. Rep advised correcting the line and resubmitting. CARC 4: The procedure code is inconsistent with the modifier used or a required modifier is missing.",
+    "expected_category": "billing_or_coding_error",
+    "expected_policy_id": null,
+    "label_reason": "The payer confirmed that authorization was valid and identified a missing required modifier as the actual processing error."
+  },
+  {
+    "id": "fresh-03",
+    "payer": "Quillfield Health",
+    "style": "letter",
+    "text": "Re: Claim Q-40826. We reviewed the submitted documentation and cannot approve payment for the service as billed. The clinical records do not establish that the requested level of treatment was medically necessary under the applicable coverage criteria. Although the submission references an authorization number, the determination is based on the clinical information received rather than an absence of prior approval. Additional relevant clinical documentation may be submitted for reconsideration. CARC 50: These are non-covered services because this is not deemed a 'medical necessity' by the payer.",
+    "expected_category": "medical_necessity",
+    "expected_policy_id": null,
+    "label_reason": "The payer explicitly bases the denial on insufficient clinical support for medical necessity and clarifies that missing authorization is not the cause."
+  },
+  {
+    "id": "fresh-04",
+    "payer": "Copperleaf Health Plan",
+    "style": "call",
+    "text": "Called about CL-29643. Rep says the claim is flagged as a duplicate, but the earlier submission was for a different service date and has a separate adjudication record. This claim itself was received beyond the contracted filing window, and the system shows no timely original receipt or approved filing exception. Rep advised that sending another copy will not resolve the denial. CARC 29: The time limit for filing has expired.",
+    "expected_category": "timely_filing",
+    "expected_policy_id": null,
+    "label_reason": "Despite the duplicate flag, the representative confirms that the earlier claim concerns a different service date and that the actual denial is expiration of the filing deadline."
+  },
+  {
+    "id": "fresh-05",
+    "payer": "Bramblecrest Insurance",
+    "style": "terse",
+    "text": "BR-85319 denied. Authorization approved and units within limit. Subscriber information matches the submitted registration, but coverage ended before the service date and no active extension is recorded. Not a coding issue; claim is outside the effective coverage period. CARC 27: Expenses incurred after coverage terminated.",
+    "expected_category": "eligibility_or_coverage",
+    "expected_policy_id": null,
+    "label_reason": "The payer's records show that coverage terminated before the date of service, making eligibility and coverage the decisive issue."
+  },
+  {
+    "id": "fresh-06",
+    "payer": "Quillfield Health",
+    "style": "terse",
+    "text": "Q-57192 denied as duplicate. Same service date and same billed service as Q-57191, which was already adjudicated and paid. Office notes mention that the service was medically necessary, but that does not support a second payment for the same claim line. If the earlier submission contained an error, follow the corrected-claim process. CARC 18: Exact duplicate claim/service.",
+    "expected_category": "duplicate_claim",
+    "expected_policy_id": null,
+    "label_reason": "The payer has already adjudicated the same service and is denying a second submission, regardless of the note's medical-necessity language."
+  },
+  {
+    "id": "fresh-07",
+    "payer": "Copperleaf Health Plan",
+    "style": "letter",
+    "text": "Re: CL-14068. Our review indicates that the claim was submitted to Copperleaf Health Plan, but the available records do not establish that this plan was responsible for the service on the date in question. The coverage information supplied points to another payer as potentially primary, and no evidence of a primary-payment determination or applicable coordination-of-benefits exception was included. We cannot determine payment responsibility from the current submission. Please verify the payer sequence and submit the applicable coordination-of-benefits information. No specific CARC was provided in the remittance detail.",
+    "expected_category": "eligibility_or_coverage",
+    "expected_policy_id": null,
+    "label_reason": "The denial concerns whether Copperleaf is the responsible payer under the available coverage and coordination-of-benefits information."
+  },
+  {
+    "id": "fresh-08",
+    "payer": "Quillfield Health",
+    "style": "call",
+    "text": "Q-90835. Called provider services for clarification. Rep confirmed the claim was received within the filing period, the service date falls within the reported coverage period, and the authorization record does not show an exceeded limit. The claim remains denied, but the remittance explanation available to the office does not identify a specific adjustment reason or explain which requirement was not met. Rep could not clarify the basis during the call and advised requesting a written determination. No CARC was confirmed.",
+    "expected_category": "other_or_unclear",
+    "expected_policy_id": null,
+    "label_reason": "The available information rules out several common denial causes but does not establish a specific reason for the denial."
+  }
+]

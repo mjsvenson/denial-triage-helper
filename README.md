@@ -22,7 +22,7 @@ Stack: Python, the Anthropic API, command line.
 - `draft.py` drafts the next step. It gives Claude the note, the classifier's category, and the retrieval candidates, and offers one tool, `get_appeal_deadline`, which our own code answers from `data/appeal_deadlines.json`. Claude must say which candidate it cites, or that none applies, and may state payer rules only from the cited snippet or the tool result. The tool loop is written by hand, so each step of tool use is visible in the code.
 - `triage.py` runs the whole pipeline on one note and prints the category, the candidates, the cited policy, any tool call, and the next step.
 - `eval_draft.py` runs the pipeline on labeled notes, scores the citations and deadlines automatically, flags steps that mention an appeal without a deadline lookup, and prints each draft for a person to check.
-- Synthetic data in `data/`: 14 labeled development notes (`denial_notes.json`), 9 held-out notes (`heldout_notes.json`), 9 invented payer policy snippets (`payer_policies.json`), and invented appeal deadlines for each payer (`appeal_deadlines.json`).
+- Synthetic data in `data/`: 14 labeled development notes (`denial_notes.json`), 9 held-out notes (`heldout_notes.json`), 8 fresh notes scored once after every prompt was frozen (`fresh_notes.json`), 9 invented payer policy snippets (`payer_policies.json`), and invented appeal deadlines for each payer (`appeal_deadlines.json`).
 
 ## Evaluation results
 
@@ -32,6 +32,7 @@ Stack: Python, the Anthropic API, command line.
 |---|---|---|---|
 | Development set (14 notes, written alongside the prompt) | 14 of 14 | 14 of 14 | 14 of 14 |
 | Held-out set (9 notes) | 9 of 9 | 9 of 9 | 9 of 9 |
+| Fresh set (8 notes, scored as part of the drafting run below) | 8 of 8 | 8 of 8 | 8 of 8 |
 | Cost of the held-out run | $0.0013 | $0.0243 | $0.0483 |
 
 - The held-out notes were drafted and first labeled with a separate AI tool, then reviewed by me. They were scored only after the classifier prompt was frozen. They are now public in `data/heldout_notes.json`, so any future prompt change needs a fresh held-out set to be scored fairly.
@@ -81,7 +82,23 @@ Changes made in response to the first version's misses:
 - On holdout-07, keyword search ranked the prior authorization snippet first, but the drafting step cited the corrected-claims snippet because the note says the authorization was approved. That is the case the first version of retrieval missed.
 - The first run missed note-11, a true duplicate of a claim already paid: the draft said to take no action but cited no policy. Two prompt clarifications, made on this development data, fixed it. A policy that covers this type of denial now counts as applying even when the step is to take no action, and any mention of an appeal or reconsideration requires a deadline lookup.
 - The appeal-without-lookup flag is keyword based, so it also fires on phrases like "rather than appealing". The one flag in this run was that kind of false positive, which is why flagged drafts are checked by hand.
-- Both sets were used during development, so these numbers are optimistic. The drafting prompt is now frozen, and 8 fresh notes will be scored once against it.
+- Both sets were used during development, so these numbers are optimistic.
+
+### Drafting (fresh notes, scored once after the freeze)
+
+The classifier prompt, retrieval, and the drafting prompt were all frozen before this run. Like the held-out notes, the fresh notes were drafted and first labeled with a separate AI tool, then reviewed by me.
+
+| | Haiku 5.5 | Sonnet 5.5 | Opus 5.5 |
+|---|---|---|---|
+| Citation correct (all 8 were "no policy applies") | 8 of 8 | 8 of 8 | 8 of 8 |
+| Classifier category correct | 8 of 8 | 8 of 8 | 8 of 8 |
+| Deadline matched the data file, when the tool was called | 3 of 3 | 4 of 4 | 4 of 4 |
+| Cost of the run | $0.0052 | $0.0990 | $0.1901 |
+
+- Every fresh note turned out to be a case where the payer has no policy on that topic. The request used to generate them asked for at least 3 such notes, and those were the only payer and topic combinations it named. So this run tested rejecting candidates that do not apply, not picking the right one. Evidence for picking the right snippet comes only from the development runs above.
+- The rejections were not trivial. Most notes contain a misleading keyword, and on fresh-06 a Quillfield duplicate came with Quillfield's corrected-claims policy as a candidate while the note itself mentions the corrected-claim process. All three models still cited no policy, and none borrowed another payer's rules.
+- By the rule set before the run (use the cheapest model that ties the best citation score), `claude-haiku-5-5` stays the default.
+- Reading the drafts turned up differences the automatic scores miss. On fresh-08, where the denial reason is still unknown, Sonnet and Opus said to watch the 45-day appeal window while waiting for the payer's written determination, and Haiku did not. Haiku's fresh-06 draft also ends with a muddled sentence.
 
 ## Try it
 
